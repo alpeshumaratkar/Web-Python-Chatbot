@@ -1,6 +1,7 @@
 import json
 import random
 import nltk
+nltk.download('punkt', quiet=True)
 from nltk.tokenize import word_tokenize
 
 # Load intents
