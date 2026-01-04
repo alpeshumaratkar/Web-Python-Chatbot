@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Python Chatbot</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -23,54 +24,80 @@
 </div>
 
 <script>
-    function sendMessage() {
-        let input = document.getElementById("userInput");
-        let message = input.value.trim();
-        if (message === "") return;
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    if (message === "") return;
 
-        input.value = "";
-        let chat = document.getElementById("chat");
+    input.value = "";
+    const chat = document.getElementById("chat");
 
-        let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    const time = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
+    // Show user message
+    chat.innerHTML += `
+        <div class="msg user-msg">
+            <span>👤 ${message}</span>
+            <div class="time">${time}</div>
+        </div>
+    `;
+
+    const typing = document.getElementById("typing");
+    typing.style.display = "block";
+
+    try {
+        const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        if (!response.ok) {
+            throw new Error("Server returned error");
+        }
+
+        const data = await response.json();
+
+        typing.style.display = "none";
+
+        // Show bot reply
         chat.innerHTML += `
-            <div class="msg user-msg">
-                <span>👤 ${message}</span>
+            <div class="msg bot-msg">
+                <span>🤖 ${data.reply}</span>
                 <div class="time">${time}</div>
             </div>
         `;
 
-        document.getElementById("typing").style.display = "block";
+        chat.scrollTop = chat.scrollHeight;
 
-        fetch("/chat", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({message: message})
-        })
-        .then(res => res.json())
-        .then(data => {
-            setTimeout(() => {
-                document.getElementById("typing").style.display = "none";
+    } catch (error) {
+        typing.style.display = "none";
 
-                chat.innerHTML += `
-                    <div class="msg bot-msg">
-                        <span>🤖 ${data.reply}</span>
-                        <div class="time">${time}</div>
-                    </div>
-                `;
-                chat.scrollTop = chat.scrollHeight;
-            }, 800);
-        });
+        chat.innerHTML += `
+            <div class="msg bot-msg">
+                <span>🤖 Server not responding. Please try again.</span>
+            </div>
+        `;
+
+        console.error(error);
     }
+}
 
-    function toggleDarkMode() {
-        document.getElementById("chatContainer").classList.toggle("dark");
-    }
+function toggleDarkMode() {
+    document.getElementById("chatContainer").classList.toggle("dark");
+}
 
-    document.getElementById("userInput")
-        .addEventListener("keypress", function(e) {
-            if (e.key === "Enter") sendMessage();
-        });
+document.getElementById("userInput")
+    .addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
 </script>
 
 </body>
