@@ -16,13 +16,12 @@ def chat():
             return jsonify({"reply": "Invalid request"}), 400
 
         user_msg = data["message"]
-
         bot_reply = get_response(user_msg)
 
         return jsonify({"reply": bot_reply})
 
     except Exception as e:
-        print("ERROR:", e)  # <-- this will appear in Render logs
+        print("BACKEND ERROR:", e)
         return jsonify({"reply": "Internal server error"}), 500
 
 if __name__ == "__main__":

@@ -1,16 +1,20 @@
 import json
 import random
 import nltk
+import os
 from nltk.tokenize import word_tokenize
 
-# Ensure punkt exists (Render-safe)
+# Ensure punkt tokenizer exists
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
     nltk.download("punkt")
 
-# Load intents
-with open("intents.json") as file:
+# Get absolute path to intents.json (RENDER SAFE)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+INTENTS_PATH = os.path.join(BASE_DIR, "intents.json")
+
+with open(INTENTS_PATH, "r") as file:
     intents = json.load(file)
 
 def get_response(user_input):
