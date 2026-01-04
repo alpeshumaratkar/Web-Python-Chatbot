@@ -9,18 +9,21 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    # Safely get JSON data
-    data = request.get_json(silent=True)
+    try:
+        data = request.get_json(silent=True)
 
-    if not data or "message" not in data:
-        return jsonify({"reply": "Invalid request. Please send a message."}), 400
+        if not data or "message" not in data:
+            return jsonify({"reply": "Invalid request"}), 400
 
-    user_msg = data["message"]
+        user_msg = data["message"]
 
-    # Get bot response
-    bot_reply = get_response(user_msg)
+        bot_reply = get_response(user_msg)
 
-    return jsonify({"reply": bot_reply})
+        return jsonify({"reply": bot_reply})
+
+    except Exception as e:
+        print("ERROR:", e)  # <-- this will appear in Render logs
+        return jsonify({"reply": "Internal server error"}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000)

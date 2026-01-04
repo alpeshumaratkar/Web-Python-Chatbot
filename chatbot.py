@@ -3,12 +3,13 @@ import random
 import nltk
 from nltk.tokenize import word_tokenize
 
-# Ensure punkt is available
+# Ensure punkt exists (Render-safe)
 try:
     nltk.data.find("tokenizers/punkt")
 except LookupError:
     nltk.download("punkt")
 
+# Load intents
 with open("intents.json") as file:
     intents = json.load(file)
 
@@ -25,4 +26,4 @@ def get_response(user_input):
             if any(word in tokens for word in pattern_tokens):
                 return random.choice(intent["responses"])
 
-    return "Sorry, I didn't understand that. Please try again."
+    return "Sorry, I didn't understand that."
